@@ -4,17 +4,26 @@ import {
   updateFunctionComponent,
   updateHostComponent,
   updateHostTextComponent,
-} from "./ReactReconciler";
+} from "./ReactFiberReconciler";
 import {
   ClassComponent,
   FunctionComponent,
   HostComponent,
   HostText,
 } from "./ReactWorkTags";
+import { Placement } from "./utils";
 
 let wip = null; // work in progress
+let wipRoot = null;
+
+// 组件初次渲染和更新
+export function scheduleUpdateOnFiber(fiber) {
+  wip = fiber;
+  wipRoot = fiber;
+}
 
 function performUnitOfWork() {
+  // debugger;
   const { tag } = wip;
 
   // tode 1.更新当前组件
@@ -56,3 +65,43 @@ function performUnitOfWork() {
 
   wip = null;
 }
+
+function workLoop(IdleDeadline) {
+  console.log("IdleDeadline:", IdleDeadline.timeRemaining());
+  debugger;
+  // while (wip && IdleDeadline.timeRemaining() > 0) {
+  while (wip) {
+    performUnitOfWork();
+  }
+
+  // 提交
+  if (!wip && wipRoot) {
+    commitRoot();
+  }
+}
+
+// 提交
+function commitRoot() {
+  commitWorker(wipRoot);
+  wipRoot = null;
+}
+
+function commitWorker(wip) {
+  // debugger;
+  if (!wip) {
+    return;
+  }
+
+  // 1.提交自己
+  const parentNode = wip.return.stateNode;
+  const { flags, stateNode } = wip;
+  if (flags & Placement && stateNode) {
+    parentNode.appendChild(stateNode);
+  }
+  // 2.提交子节点
+  commitWorker(wip.child);
+  // 3.提交兄弟
+  commitWorker(wip.sibling);
+}
+
+requestIdleCallback(workLoop);
