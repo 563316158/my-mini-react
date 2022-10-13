@@ -10,6 +10,7 @@ import {
   FunctionComponent,
   HostComponent,
   HostText,
+  Fragment,
 } from "./ReactWorkTags";
 import { Placement } from "./utils";
 
@@ -67,10 +68,8 @@ function performUnitOfWork() {
 }
 
 function workLoop(IdleDeadline) {
-  console.log("IdleDeadline:", IdleDeadline.timeRemaining());
-  debugger;
-  // while (wip && IdleDeadline.timeRemaining() > 0) {
-  while (wip) {
+  while (wip && IdleDeadline.timeRemaining() > 0) {
+  // while (wip) {
     performUnitOfWork();
   }
 
@@ -93,7 +92,7 @@ function commitWorker(wip) {
   }
 
   // 1.提交自己
-  const parentNode = wip.return.stateNode;
+  const parentNode = getParentNode(wip.return);
   const { flags, stateNode } = wip;
   if (flags & Placement && stateNode) {
     parentNode.appendChild(stateNode);
@@ -102,6 +101,16 @@ function commitWorker(wip) {
   commitWorker(wip.child);
   // 3.提交兄弟
   commitWorker(wip.sibling);
+}
+
+function getParentNode(wip) {
+  let tem = wip;
+  while(tem){
+    if(tem.stateNode){
+      return tem.stateNode;
+    }
+    tem = tem.return
+  }
 }
 
 requestIdleCallback(workLoop);

@@ -10,13 +10,28 @@ export function updateHostComponent(wip) {
   reconcileChildren(wip, wip.props.children);
 }
 
-export function updateFunctionComponent() {}
+export function updateFunctionComponent(wip) {
+  const { type, props } = wip;
+  const children = type(props);
+  reconcileChildren(wip, children);
+}
 
-export function updateClassComponent() {}
+export function updateClassComponent(wip) {
+  const { type, props } = wip;
+  const instance = new type(props);
+  const children = instance.render();
+  reconcileChildren(wip, children);
+}
 
-export function updateFragmentComponent() {}
+export function updateFragmentComponent(wip) {
+  console.log("Fragment:", wip);
+  const children = wip.props.children;
+  reconcileChildren(wip,children);
+}
 
-export function updateHostTextComponent() {}
+export function updateHostTextComponent(wip) {
+  wip.stateNode = document.createTextNode(wip.props.children);
+}
 
 function reconcileChildren(wip, children) {
   //   debugger;

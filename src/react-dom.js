@@ -17,7 +17,7 @@ function updateContainer(element, container){
         type: containerInfo.nodeName.toLocaleLowerCase(),
         stateNode: containerInfo,
     })
-    console.log("fiber:", fiber); // sy-log
+    console.log("wip:", fiber); // sy-log
     // 组件初次渲染
     scheduleUpdateOnFiber(fiber);
 } 
