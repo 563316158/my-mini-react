@@ -26,7 +26,7 @@ export function updateClassComponent(wip) {
 export function updateFragmentComponent(wip) {
   console.log("Fragment:", wip);
   const children = wip.props.children;
-  reconcileChildren(wip,children);
+  reconcileChildren(wip, children);
 }
 
 export function updateHostTextComponent(wip) {
@@ -64,6 +64,10 @@ function updateNode(node, nextVal) {
       if (isStringOrNumber(nextVal[k])) {
         node.textContent = nextVal[k] + "";
       }
+    } else if (k.slice(0, 2) === "on") {
+      // fake
+      const eventName = k.slice(2).toLocaleLowerCase();
+      node.addEventListener(eventName, nextVal[k]);
     } else {
       node[k] = nextVal[k];
     }

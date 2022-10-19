@@ -14,6 +14,8 @@ import {
 } from "./ReactWorkTags";
 import { Placement } from "./utils";
 
+import { scheduleCallback } from "./scheduler/index";
+
 let wip = null; // work in progress
 let wipRoot = null;
 
@@ -21,6 +23,8 @@ let wipRoot = null;
 export function scheduleUpdateOnFiber(fiber) {
   wip = fiber;
   wipRoot = fiber;
+
+  scheduleCallback(workLoop);
 }
 
 function performUnitOfWork() {
@@ -67,9 +71,8 @@ function performUnitOfWork() {
   wip = null;
 }
 
-function workLoop(IdleDeadline) {
-  while (wip && IdleDeadline.timeRemaining() > 0) {
-  // while (wip) {
+function workLoop() {
+  while (wip) {
     performUnitOfWork();
   }
 
@@ -105,12 +108,12 @@ function commitWorker(wip) {
 
 function getParentNode(wip) {
   let tem = wip;
-  while(tem){
-    if(tem.stateNode){
+  while (tem) {
+    if (tem.stateNode) {
       return tem.stateNode;
     }
-    tem = tem.return
+    tem = tem.return;
   }
 }
 
-requestIdleCallback(workLoop);
+// requestIdleCallback(workLoop);
